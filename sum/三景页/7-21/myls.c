@@ -10,6 +10,7 @@
 #include<grp.h>
 #include<pwd.h>
 #include<errno.h>
+#include<stdlib.h>
 
 #define PARAM_NONE 0
 #define PARAM_A    1
@@ -18,8 +19,13 @@
 #define PARAM_r    8
 #define MAXROWLEN  80
 
+int flag;
+
 int g_leave_len = MAXROWLEN;
 int g_maxlen;
+
+void my_err(const char* err_string,int line);
+void display_dir(char* path);
 
 void my_err(const char* err_string,int line)
 {
@@ -27,6 +33,7 @@ void my_err(const char* err_string,int line)
 	perror(err_string);
 	exit(1);
 }
+
 void cprint(char* name,mode_t st_mode)
 {
 
@@ -128,65 +135,137 @@ void display_single(char* name)
 	struct stat buf;
 	if(lstat(name,&buf)==-1)
 	{
-		perror("lstat");
-		exit(1);
+		return;
+		//perror("lstat");
+		//exit(1);
 	}
+
 	if(g_leave_len<g_maxlen)
 	{
 		printf("\n");
 		g_leave_len=MAXROWLEN;
 	}
+	
 	cprint(name,buf.st_mode);
 	g_leave_len=g_leave_len-(g_maxlen+2);
+	
 }
-void display(int flag,char* name)
-{
-	int i,j;
 
+void displayR_single(char* name)
+{
+	int len ;
+	struct stat buf;
+	if(lstat(name,&buf)==-1)
+	{
+	return;
+		//perror("lstat");
+		//exit(1);
+	}
+	if(S_ISDIR(buf.st_mode))
+	{
+		printf("\n");
+	    cprint(name,buf.st_mode);
+		printf("/:\n");
+	    g_leave_len=MAXROWLEN;
+	    
+	    strcat(name,"/");
+		display_dir(name);
+		free(name);
+		chdir("..");
+
+	}
+}
+
+void display(char **name ,int count)
+{
+	int i;
 	switch(flag)
 	{
 		case PARAM_r:
 		case PARAM_NONE:
-			if(name[0]!='.') //排除.., .,以及隐藏文件
-				display_single(name);
+			for(i=0;i<count;i++)
+			{
+				if(name[i][0]!='.') //排除.., .,以及隐藏文件
+					display_single(name[i]);
+			}
 			break;
 		case PARAM_A:
-			display_single(name);
+			for(i=0;i<count;i++)
+			{
+				display_single(name[i]);
+			}
 			break;
 		case PARAM_L:
-			if(name[0]!='.')
+		for(i=0;i<count;i++)
+		{
+			if(name[i][0]!='.')
 			{
-				display_attribute(name);
+				display_attribute(name[i]);
 				
 			}
+		}
 			break;
+		case PARAM_R:
+			for(i=0;i<count;i++)
+			{
+				if(name[i][0]!='.')
+				{
+					display_single(name[i]);
+				}
+			}
+			for(i=0;i<count;i++)
+			{
+				if(name[i][0]!='.')
+				{
+					displayR_single(name[i]);
+				}
+			}
+			break;
+		case PARAM_R+PARAM_L:
+			for(i=0;i<count;i++)
+			{
+				
+			}
 		case PARAM_r+PARAM_A:
-			display_single(name);
+		for(i=0;i<count;i++)
+		{
+			display_single(name[i]);
+		}
 			break;
 		case PARAM_r+PARAM_L:
-			if(name[0]!='.')
+		for(i=0;i<count;i++)
+		{
+			if(name[i][0]!='.')
 			{
-				display_attribute(name);
+				display_attribute(name[i]);
 			}
-
+		}
+			break;
 		case PARAM_A+PARAM_L:
-			display_attribute(name);
+			for(i=0;i<count;i++)
+			{
+				display_attribute(name[i]);
+			}
 			break;
 		case PARAM_A+PARAM_L+PARAM_r:
-			display_attribute(name);
+			for(i=0;i<count;i++)
+			{
+				display_attribute(name[i]);
+			}
 			break;
+			
 	}
-
-
-
 }
-void display_dir(int flag,char* path)
+
+
+void display_dir(char* path)
 {
 	DIR* dir;
 	struct dirent* ptr;
 	int count=0;
-	char filenames[1000][PATH_MAX+1],temp[PATH_MAX+1];
-
+	//char filenames[300][PATH_MAX+1],temp[PATH_MAX+1];
+	
+	
 	//获取文件数和最长文件名长度 
 	dir = opendir(path);
 	if(dir==NULL)
@@ -198,13 +277,17 @@ void display_dir(int flag,char* path)
 		count++;
 	}
 	closedir(dir);
+	char **filenames=(char**)malloc(sizeof(char*)*count),temp[PATH_MAX+1];
+	for(int i=0;i<count;i++)
+	{
+		filenames[i]=(char*)malloc(sizeof(char)*PATH_MAX+1);
+	}
 	
-	
-	if(count>1000)
+	/*if(count>4000)
 	{
 		printf("%s: %d\n",path,count);
 		my_err("文件太多啦！换个目录试试",__LINE__);
-	}
+	}*/
 	int i,j;
 	//获取该目录下所有的文件名
 	dir=opendir(path);
@@ -217,7 +300,7 @@ void display_dir(int flag,char* path)
 		}
 		strcpy(filenames[i],ptr->d_name);
 	}
-
+	closedir(dir);
 	if(flag&PARAM_r)
 	{
 		for(i=0;i<count-1;i++)
@@ -225,7 +308,8 @@ void display_dir(int flag,char* path)
 			for(j=0;j<count-1-i;j++)
 			{
 				if(strcmp(filenames[j],filenames[j+1])<0)
-				{					strcpy(temp,filenames[j]);
+				{
+					strcpy(temp,filenames[j]);
 					strcpy(filenames[j],filenames[j+1]);
 					strcpy(filenames[j+1],temp);
 				}
@@ -239,7 +323,8 @@ void display_dir(int flag,char* path)
                         for(j=0;j<count-1-i;j++)
                         {
                                 if(strcmp(filenames[j],filenames[j+1])>0)
-                                {                                       strcpy(temp,filenames[j]);
+                                {       
+                                        strcpy(temp,filenames[j]);
                                         strcpy(filenames[j],filenames[j+1]);
                                         strcpy(filenames[j+1],temp);
                                 }
@@ -251,15 +336,14 @@ void display_dir(int flag,char* path)
 	char* p=path;
 	while(*p++);
 	while(*--p);
-	*p='\0';
 	if(chdir(path)<0)
 	{
 		my_err("chdir",__LINE__);
 	}
-	for(i=0;i<count;i++)
-		display(flag,filenames[i]);
-	closedir(dir);
-	if((flag&PARAM_L)==0)
+	
+	display(filenames,count);
+	//closedir(dir);
+	if((flag&PARAM_L==0&&!(flag|PARAM_R)))
 		printf("\n");
 }
 
@@ -267,8 +351,9 @@ int main(int argc,char** argv)
 {
 	int i,j,k=0,num=0;
 	char param[32]="";
-	char path[PATH_MAX+1]="";
-	int flag_param =PARAM_NONE;
+	char *path[1];
+	path[0]=(char*)malloc(sizeof(char)*PATH_MAX);
+	flag=PARAM_NONE;
 	struct stat buf;
 
 	//命令行参数解析
@@ -289,13 +374,13 @@ int main(int argc,char** argv)
 	for(i=0;i<k;i++)
 	{
 		if(param[i]=='a')
-			flag_param|=PARAM_A;
+			flag|=PARAM_A;
 		else if(param[i]=='l')
-			flag_param|=PARAM_L;
-		//else if(param[i]=='R')
-		/********/
+			flag|=PARAM_L;
+		else if(param[i]=='R')
+			flag|=PARAM_R;
 		else if(param[i]=='r')
-			flag_param|=PARAM_r;
+			flag|=PARAM_r;
 		else
 		{
 			printf("my_ls:invalid option -%c\n",param[i]);
@@ -304,8 +389,8 @@ int main(int argc,char** argv)
 	}
 	if(num+1==argc)
 	{
-		strcpy(path,"./");
-		display_dir(flag_param,path);
+		strcpy(path[0],"./");
+		display_dir(path[0]);
 		return 0;
 	}
 
@@ -319,7 +404,7 @@ int main(int argc,char** argv)
 		}
 		else
 		{
-			strcpy(path,argv[i]);
+			strcpy(path[0],argv[i]);
 			//判断目录或文件是否存在
 			if(stat(argv[i],&buf)==-1)
 			{
@@ -327,22 +412,23 @@ int main(int argc,char** argv)
 			}
 			if(S_ISDIR(buf.st_mode))  //判断是否为目录，为其后面加/
 			{
-				if(path[strlen(argv[i])-1]!='/')
+				if(path[0][strlen(path[0])-1]!='/')
 				{
-					strcat(path,"/");
+					strcat(path[0],"/");
 				}
 				else
-					path[strlen(path)]='\0';
-				display_dir(flag_param,path);
+					path[0][strlen(path[0])]='\0';
+				display_dir(path[0]);
 				i++;
 			}
 			else
 			{
-				display(flag_param,path);
+				display(path,1);
 				i++;
 			}
 		}
 	}while(i<argc);
+	printf("\n");
 
 	return 0;
 
