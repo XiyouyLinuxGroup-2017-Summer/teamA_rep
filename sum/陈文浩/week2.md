@@ -12,10 +12,10 @@ int execle(const char *path, const char *arg, ... /*, (char *)NULL, char * const
     //char *argv[] = { "-l", "-R", "/"  }；execv("/usr/bin/ls", argv);
     int execvp(const char *file, char *const argv[]);
     int execvpe(const char *file, char *const argv[], char *const envp[]);
-    int fexecve(int fd, char *const argv[], char *const envp[]);
-    ```
-    ![这里写图片描述](http://img.blog.csdn.net/20170730135620919?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbTBfMzc3ODcyMjI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
-    我觉得最重要的就是这个改变函数，没有这个改变函数，我就觉得程序就五大继续运行
+    int fexecve(int fd, char *const argv[], char *const envp[]);
+```
+    ![这里写图片描述](http://img.blog.csdn.net/20170730135620919?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbTBfMzc3ODcyMjI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)  
+    我觉得最重要的就是这个改变函数，没有这个改变函数，我就觉得程序就五大继续运行  
 
     二、本周心得
     经历了上周ls的摧残之后，这周又有了进程，虽然这周代码实现比ls较为轻松，
