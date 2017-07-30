@@ -14,10 +14,10 @@ int execle(const char *path, const char *arg, ... /*, (char *)NULL, char * const
     int execvpe(const char *file, char *const argv[], char *const envp[]);
     int fexecve(int fd, char *const argv[], char *const envp[]);
 ```
-    ![这里写图片描述](http://img.blog.csdn.net/20170730135620919?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbTBfMzc3ODcyMjI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)  
-    我觉得最重要的就是这个改变函数，没有这个改变函数，我就觉得程序就五大继续运行  
+![这里写图片描述](http://img.blog.csdn.net/20170730135620919?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbTBfMzc3ODcyMjI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)    
+我觉得最重要的就是这个改变函数，没有这个改变函数，我就觉得程序就五大继续运行    
 
-    二、本周心得
-    经历了上周ls的摧残之后，这周又有了进程，虽然这周代码实现比ls较为轻松，
-    但是概念性的东西还是太多了，关键我觉得对计算机的操作系统概念不是特别清晰，所以到时看这一章比较吃力，
-    进程只是了解了一个大概，但是我相信到时学操作系统应该就更轻松一些了。
+#### 二、本周心得  
+经历了上周ls的摧残之后，这周又有了进程，虽然这周代码实现比ls较为轻松，  
+但是概念性的东西还是太多了，关键我觉得对计算机的操作系统概念不是特别清晰，所以到时看这一章比较吃力，  
+进程只是了解了一个大概，但是我相信到时学操作系统应该就更轻松一些了。  
