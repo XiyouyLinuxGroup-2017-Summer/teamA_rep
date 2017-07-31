@@ -130,7 +130,7 @@ void do_cmd(int num, char* command[100])
     char* argv[100];
     int i,j=0,k;
     int a[10]={0};
-    int fd[3]={0};
+    int fd[3]={0},sdf;
     pid_t pid;
     for(i=0;i<num;i++)
     {
@@ -212,8 +212,8 @@ void do_cmd(int num, char* command[100])
                 if(strcmp(parameter[i],"|")==0)
                 {
                 	fd[2]=open("/tmp/youdonotknow",O_WRONLY|O_CREAT|O_TRUNC,0644);
-                	if(fd[0]==0)
-                	{
+                	if(fd[0]==0);
+                	{	sdf=dup(1);
                 		dup2(fd[2],1);
                 	}
                 }
@@ -223,14 +223,8 @@ void do_cmd(int num, char* command[100])
           	pid2=fork();
           	if(pid2==0)
             {
-            	for(i=0;i<j;i++)
-            	{
-				    if(strcmp(parameter[i],"|")!=0)
-				    {	puts("$$$###");
-				        execvp(argv[a[i]],argv);
-						exit(0);
-				    }
-         		}
+				execvp(argv[a[0]],argv);
+				exit(0);
            	} 	
        	 	int status2;
        	 	if(wait(&status2)==-1)
@@ -241,10 +235,11 @@ void do_cmd(int num, char* command[100])
        	 	for(i=0;i<j;i++)
        	 	{
        	 		if(strcmp(parameter[i],"|")==0)
-				{
+				{	
+					dup2(sdf,1);
 				    fd[2]=open("/tmp/youdonotknow",O_RDONLY);
 				   	dup2(fd[2],0);
-				    execvp(argv[a[i]],argv+a[i]);
+				    execvp(argv[a[i+1]],argv+a[i+1]);
 					exit(0);
 				}
        	 	}
