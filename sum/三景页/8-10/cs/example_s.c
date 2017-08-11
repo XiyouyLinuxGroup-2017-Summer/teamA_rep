@@ -20,7 +20,7 @@
 typedef struct server_context_st
 {
 	int cli_cnt;        /*客户端个数*/
-	int clifds[SIZE];   /*客户端的个数*/
+	int clifds[SIZE];   /*客户端/
 	fd_set allfds;      /*句柄集合*/
 	int maxfd;          /*句柄最大值*/
 } server_context_st;

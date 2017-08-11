@@ -15,10 +15,11 @@ void view_menu()
 		printf("\t2\t\t登陆\n");
 		printf("\t3\t\t注销\n");
 		scanf("%c",&flag);
+		getchar();
 		switch(flag)
 		{
 			case '1':
-				send(sockfd,(void*)&flag,1,0);
+				send(sockfd,"1",2,0);
 				if(reg_account(sockfd))
 				{
 					printf("注册成功!\n");
@@ -27,7 +28,7 @@ void view_menu()
 					printf("注册失败!\n");
 				break;
 			case '2':
-				send(sockfd,(void*)&flag,1,0);
+				send(sockfd,"2",2,0);
 				lading();
 				break;
 			case '3':

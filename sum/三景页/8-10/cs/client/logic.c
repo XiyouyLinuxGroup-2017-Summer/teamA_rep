@@ -10,6 +10,9 @@
 #include"my_recv.h"
 #include"logic.h"
 
+#define  IP1   "47.94.12.103"
+#define  IP2   "182.254.227.246"
+
 int con_service()
 {
 	int				conn_fd;
@@ -18,7 +21,7 @@ int con_service()
 	memset(&serv_addr,0,sizeof(struct sockaddr_in));
 	serv_addr.sin_family=AF_INET;
 	serv_addr.sin_port=htons(4507);
-	if(inet_aton("47.94.12.103",&serv_addr.sin_addr)==0)
+	if(inet_aton(IP1,&serv_addr.sin_addr)==0)
 	{
 		printf("invalid server ip address\n");
 		exit(1);
